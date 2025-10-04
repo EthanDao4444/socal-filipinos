@@ -1,13 +1,41 @@
-// In: app/_layout.tsx
-import { Stack } from 'expo-router';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native'
+import { Stack } from 'expo-router'
+import { StatusBar } from 'expo-status-bar'
+import 'react-native-reanimated'
 
-export default function RootLayout() {
+// import { SplashScreenController } from '@/components/SplashScreenController'
+
+import { useAuthContext } from '@/hooks/use-auth-context'
+import { useColorScheme } from '@/hooks/use-color-scheme'
+import AuthProvider from '@/providers/auth-provider'
+
+// Separate RootNavigator so we can access the AuthContext
+function RootNavigator() {
+  const { isLoggedIn } = useAuthContext()
+
   return (
     <Stack>
-      {/* This screen points to the layout file for your tabs.
-        The headerShown: false option hides the header for the tab navigator itself.
-      */}
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Protected guard={isLoggedIn}>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack.Protected>
+      <Stack.Protected guard={!isLoggedIn}>
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+      </Stack.Protected>
+      <Stack.Screen name="+not-found" />
     </Stack>
-  );
+  )
+}
+
+export default function RootLayout() {
+  const colorScheme = useColorScheme()
+
+  return (
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <AuthProvider>
+        {/* <SplashScreenController /> */}
+        <RootNavigator />
+        <StatusBar style="auto" />
+      </AuthProvider>
+    </ThemeProvider>
+  )
 }

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase} from '@/utils/supabase';
 import { Text, View } from 'react-native';
 import "../../global.css"
+import SignOutButton from '@/components/social-auth-buttons/sign-out-button';
 
 interface User {
   first_name: string;
@@ -26,6 +27,7 @@ export default function Events() {
       <Text className="text-xl font-bold text-blue-500">
         Welcome to Nativewind!
       </Text>
+      <SignOutButton />
     </View>
   );
 }
