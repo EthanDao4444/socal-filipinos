@@ -3,6 +3,7 @@ import { supabase} from '@/utils/supabase';
 import { Text, View, Image } from 'react-native';
 import type { Session } from '@supabase/supabase-js';
 import SignOutButton from '@/components/social-auth-buttons/sign-out-button';
+import { Button } from '@/components/Button';
 
 interface User {
   full_name: string;
@@ -61,7 +62,7 @@ export default function User() {
 
   return (
     <View className="flex-1 bg-white">
-    <View className="flex-1 flex-col justify-center items-center -mt-60">
+    <View className="flex-1 flex-col justify-center items-center mt-28">
       {user?.avatar_url ? (
         <Image
           source={{ uri: user.avatar_url }}
@@ -70,15 +71,24 @@ export default function User() {
       ) : (
         <Text>No Avatar</Text>
       )}
-      <Text className="text-2xl font-semibold">
+      <Text className="text-3xl font-semibold">
         {user?.full_name}
       </Text>
+      <Button
+        className="w-1/4 bg-indigo-500 shadow-lg rounded-lg px-6 py-1 mt-4"
+        textClassName="text-white text-xs"
+        title="Edit Bio"
+      />
+      <Button className="w-3/4 bg-white shadow-lg rounded-lg px-6 py-2 mt-12" title="User Settings"/>
+      <Button className="w-3/4 bg-white shadow-lg rounded-lg px-6 py-2 mt-12" title="Registered Events"/>
+      <Button className="w-3/4 bg-white shadow-lg rounded-lg px-6 py-2 mt-12" title="Friends List"/>
+
     </View>
 
 
-    <View className="mb-10 px-6">
-      <View className="border-t border-gray-300 mb-4" />
-      <SignOutButton />
+    <View className="mb-10 px-6 items-center">
+      <View className="w-5/6 border-t border-gray-300 mb-4" />
+      <SignOutButton className="w-1/2 mt-4"/>
     </View>
   </View>
   );
