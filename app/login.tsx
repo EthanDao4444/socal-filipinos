@@ -8,7 +8,6 @@ import GoogleSignInButton from '@/components/social-auth-buttons/google/google-s
 import * as Linking from 'expo-linking';
 
 export default function LoginScreen() {
-  console.log(Linking.useLinkingURL());
   return (
     <>
       <Stack.Screen options={{ title: 'Login' }} />

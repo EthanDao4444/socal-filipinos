@@ -31,7 +31,6 @@ export default function AuthProvider({ children }: PropsWithChildren) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log('Auth state changed:', { event: _event, session })
       setSession(session)
     })
 
@@ -47,12 +46,12 @@ export default function AuthProvider({ children }: PropsWithChildren) {
       setIsLoading(true)
 
       if (session) {
+        console.log(session.user.user_metadata)
         const { data } = await supabase
           .from('users')
           .select('*')
           .eq('user_id', session.user.id)
           .single()
-        console.log("daters", data);
         setUser(data)
       } else {
         setUser(null)

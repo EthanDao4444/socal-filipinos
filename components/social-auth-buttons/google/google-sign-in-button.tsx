@@ -25,10 +25,30 @@ export default function GoogleSignInButton() {
       code: params.get("code"),
     };
   };
-  console.log(`${expo.scheme}://google-auth`)
+
+  async function createUserRecordIfNotExists(userId: string, email: string | null, fullName: string | null) {
+    const { data, error } = await supabase
+      .from('users') // public.users
+      .select('user_id')
+      .eq('user_id', userId)
+      .single();
+
+    if (!data) {
+      // User doesn't exist in public.users, create a record
+      const { data: insertData, error: insertError } = await supabase
+        .from('users')
+        .insert([{ user_id: userId, email, full_name: fullName }]);
+      
+      if (insertError) console.error('Error creating public.users record', insertError);
+      else console.debug('Created public.users record', insertData);
+    } else {
+      console.debug('User already exists in public.users', data);
+    }
+  }
+
   async function onSignInButtonPress() {
     console.debug('onSignInButtonPress - start');
-    console.log(`${expo.scheme}://google-auth`)
+
     const res = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -44,48 +64,50 @@ export default function GoogleSignInButton() {
       console.error("no oauth url found!");
       return;
     }
+
     const result = await WebBrowser.openAuthSessionAsync(
       googleOAuthUrl,
       `${expo.scheme}://google-auth`,
       { showInRecents: true },
     ).catch((err) => {
       console.error('onSignInButtonPress - openAuthSessionAsync - error', { err });
-      console.log(err);
     });
 
     console.debug('onSignInButtonPress - openAuthSessionAsync - result', { result });
 
     if (result && result.type === "success") {
-      console.debug('onSignInButtonPress - openAuthSessionAsync - success');
       const params = extractParamsFromUrl(result.url);
-      console.log("Redirected URL:", result.url);
-      console.debug('onSignInButtonPress - openAuthSessionAsync - success', { params });
+      console.debug('onSignInButtonPress - success', { params });
 
       if (params.access_token && params.refresh_token) {
-        console.debug('onSignInButtonPress - setSession');
         const { data, error } = await supabase.auth.setSession({
           access_token: params.access_token,
           refresh_token: params.refresh_token,
         });
-        console.debug('onSignInButtonPress - setSession - success', { data, error });
+        console.debug('onSignInButtonPress - setSession', { data, error });
+
+        if (!error && data.user) {
+          // Create public.users record if first time signing in
+          await createUserRecordIfNotExists(
+            data.user.id,
+            data.user.email ?? '',
+            data.user.user_metadata?.full_name || null
+          );
+        }
         return;
       } else {
-        console.error('onSignInButtonPress - setSession - failed');
-        // sign in/up failed
+        console.error('Failed to set session');
       }
     } else {
-      console.error('onSignInButtonPress - openAuthSessionAsync - failed');
+      console.error('Auth session failed');
     }
   }
 
-  // to warm up the browser
+  // warm up browser
   useEffect(() => {
     WebBrowser.warmUpAsync();
-
-    return () => {
-      WebBrowser.coolDownAsync();
-    };
-  }, []);
+    return () => { WebBrowser.coolDownAsync()};
+  }, [])
 
   return (
     <TouchableOpacity
@@ -104,7 +126,7 @@ export default function GoogleSignInButton() {
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
         shadowRadius: 2,
-        elevation: 2, // For Android shadow
+        elevation: 2,
       }}
       activeOpacity={0.8}
     >
@@ -116,7 +138,7 @@ export default function GoogleSignInButton() {
         style={{
           fontSize: 16,
           color: '#757575',
-          fontFamily: 'Roboto-Regular', // Assuming Roboto is available; install via expo-google-fonts or similar if needed
+          fontFamily: 'Roboto-Regular',
           fontWeight: '500',
         }}
       >
