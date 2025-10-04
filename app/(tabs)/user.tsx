@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { supabase} from '@/utils/supabase';
-import { Text, View } from 'react-native';
+import { Text, View, Image } from 'react-native';
 import type { Session } from '@supabase/supabase-js';
 
 interface User {
-  first_name: string;
-  last_name: string;
+  full_name: string;
+  created_at: string;
   avatar_url?: string;
+  role: string;
+  user_id: string;
 }
 
 export default function User() {
@@ -57,8 +59,18 @@ export default function User() {
   }, [session]);
 
   return (
-    <View>
-      <Text style={{ color: 'blue' }}>a</Text>
+    <View className="flex-1 items-center justify-center">
+      {user?.avatar_url ? (
+        <Image
+          source={{ uri: user.avatar_url }}
+          className="w-32 h-32 rounded-full"
+        />
+      ) : (
+        <Text>No Avatar</Text>
+      )}
+      <Text className="mt-4 text-lg font-semibold">
+        {user?.full_name}
+      </Text>
     </View>
   );
 }
