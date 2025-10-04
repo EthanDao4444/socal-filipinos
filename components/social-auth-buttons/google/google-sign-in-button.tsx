@@ -25,14 +25,14 @@ export default function GoogleSignInButton() {
       code: params.get("code"),
     };
   };
-
+  console.log(`${expo.scheme}://google-auth`)
   async function onSignInButtonPress() {
     console.debug('onSignInButtonPress - start');
     console.log(`${expo.scheme}://google-auth`)
     const res = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: "`${expo.scheme}://google-auth`",
+        redirectTo: `${expo.scheme}://google-auth`,
         queryParams: { prompt: "consent" },
         skipBrowserRedirect: true,
       },
@@ -58,6 +58,7 @@ export default function GoogleSignInButton() {
     if (result && result.type === "success") {
       console.debug('onSignInButtonPress - openAuthSessionAsync - success');
       const params = extractParamsFromUrl(result.url);
+      console.log("Redirected URL:", result.url);
       console.debug('onSignInButtonPress - openAuthSessionAsync - success', { params });
 
       if (params.access_token && params.refresh_token) {

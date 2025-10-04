@@ -5,7 +5,10 @@ import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import GoogleSignInButton from '@/components/social-auth-buttons/google/google-sign-in-button';
 
+import * as Linking from 'expo-linking';
+
 export default function LoginScreen() {
+  console.log(Linking.useLinkingURL());
   return (
     <>
       <Stack.Screen options={{ title: 'Login' }} />

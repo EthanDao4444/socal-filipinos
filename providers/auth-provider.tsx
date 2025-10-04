@@ -5,7 +5,7 @@ import { PropsWithChildren, useEffect, useState } from 'react'
 
 export default function AuthProvider({ children }: PropsWithChildren) {
   const [session, setSession] = useState<Session | undefined | null>()
-  const [profile, setProfile] = useState<any>()
+  const [user, setUser] = useState<any>()
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   // Fetch the session once, and subscribe to auth state changes
@@ -43,25 +43,25 @@ export default function AuthProvider({ children }: PropsWithChildren) {
 
   // Fetch the profile when the session changes
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchUser = async () => {
       setIsLoading(true)
 
       if (session) {
         const { data } = await supabase
-          .from('profiles')
+          .from('users')
           .select('*')
-          .eq('id', session.user.id)
+          .eq('user_id', session.user.id)
           .single()
-
-        setProfile(data)
+        console.log("daters", data);
+        setUser(data)
       } else {
-        setProfile(null)
+        setUser(null)
       }
 
       setIsLoading(false)
     }
 
-    fetchProfile()
+    fetchUser()
   }, [session])
 
   return (
@@ -69,7 +69,7 @@ export default function AuthProvider({ children }: PropsWithChildren) {
       value={{
         session,
         isLoading,
-        profile,
+        user,
         isLoggedIn: session != undefined,
       }}
     >
