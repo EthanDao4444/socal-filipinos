@@ -32,7 +32,6 @@ export default function GoogleSignInButton() {
       .select('user_id')
       .eq('user_id', userId)
       .single();
-
     if (!data) {
       // User doesn't exist in public.users, create a record
       const { data: insertData, error: insertError } = await supabase
@@ -47,7 +46,7 @@ export default function GoogleSignInButton() {
   }
 
   async function onSignInButtonPress() {
-    console.debug('onSignInButtonPress - start');
+    // console.debug('onSignInButtonPress - start');
 
     const res = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -73,18 +72,18 @@ export default function GoogleSignInButton() {
       console.error('onSignInButtonPress - openAuthSessionAsync - error', { err });
     });
 
-    console.debug('onSignInButtonPress - openAuthSessionAsync - result', { result });
+    // console.debug('onSignInButtonPress - openAuthSessionAsync - result', { result });
 
     if (result && result.type === "success") {
       const params = extractParamsFromUrl(result.url);
-      console.debug('onSignInButtonPress - success', { params });
+      // console.debug('onSignInButtonPress - success', { params });
 
       if (params.access_token && params.refresh_token) {
         const { data, error } = await supabase.auth.setSession({
           access_token: params.access_token,
           refresh_token: params.refresh_token,
         });
-        console.debug('onSignInButtonPress - setSession', { data, error });
+        // console.debug('onSignInButtonPress - setSession', { data, error });
 
         if (!error && data.user) {
           // Create public.users record if first time signing in

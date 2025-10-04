@@ -46,7 +46,7 @@ export default function AuthProvider({ children }: PropsWithChildren) {
       setIsLoading(true)
 
       if (session) {
-        console.log(session.user.user_metadata)
+        // console.log(session.user.user_metadata)
         const { data } = await supabase
           .from('users')
           .select('*')
