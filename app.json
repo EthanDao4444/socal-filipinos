@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "socal-filipinos2",
-    "slug": "socal-filipinos2",
+    "name": "socal-filipinos",
+    "slug": "socal-filipinos",
     "version": "1.0.0",
-    "scheme": "socal-filipinos2",
+    "scheme": "socal-filipinos",
     "platforms": [
       "ios",
       "android"
@@ -15,7 +15,8 @@
     },
     "plugins": [
       "expo-router",
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
@@ -33,13 +34,15 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.socalfilipinos"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.anonymous.socalfilipinos"
     }
   }
 }
