@@ -26,7 +26,7 @@ export default function GoogleSignInButton() {
     };
   };
 
-  async function createUserRecordIfNotExists(userId: string, email: string | null, fullName: string | null) {
+  async function createUserRecordIfNotExists(userId: string, email: string | null, fullName: string | null, role: string = 'user', avatar_url: string | null) {
     const { data, error } = await supabase
       .from('users') // public.users
       .select('user_id')
@@ -36,7 +36,7 @@ export default function GoogleSignInButton() {
       // User doesn't exist in public.users, create a record
       const { data: insertData, error: insertError } = await supabase
         .from('users')
-        .insert([{ user_id: userId, email, full_name: fullName }]);
+        .insert([{ user_id: userId, email, full_name: fullName, role, avatar_url }]);
       
       if (insertError) console.error('Error creating public.users record', insertError);
       else console.debug('Created public.users record', insertData);
@@ -84,13 +84,15 @@ export default function GoogleSignInButton() {
           refresh_token: params.refresh_token,
         });
         // console.debug('onSignInButtonPress - setSession', { data, error });
-
+        console.log(data.user?.user_metadata);
         if (!error && data.user) {
           // Create public.users record if first time signing in
           await createUserRecordIfNotExists(
             data.user.id,
             data.user.email ?? '',
-            data.user.user_metadata?.full_name || null
+            data.user.user_metadata?.full_name || null,
+            'user',
+            data.user.user_metadata.picture
           );
         }
         return;
