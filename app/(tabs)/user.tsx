@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase} from '@/utils/supabase';
 import { Text, View, Image } from 'react-native';
 import type { Session } from '@supabase/supabase-js';
+import SignOutButton from '@/components/social-auth-buttons/sign-out-button';
 
 interface User {
   full_name: string;
@@ -59,18 +60,26 @@ export default function User() {
   }, [session]);
 
   return (
-    <View className="flex-1 items-center justify-center">
+    <View className="flex-1 bg-white">
+    <View className="flex-1 flex-col justify-center items-center -mt-60">
       {user?.avatar_url ? (
         <Image
           source={{ uri: user.avatar_url }}
-          className="w-32 h-32 rounded-full"
+          className="w-44 h-44 rounded-full mb-4"
         />
       ) : (
         <Text>No Avatar</Text>
       )}
-      <Text className="mt-4 text-lg font-semibold">
+      <Text className="text-2xl font-semibold">
         {user?.full_name}
       </Text>
     </View>
+
+
+    <View className="mb-10 px-6">
+      <View className="border-t border-gray-300 mb-4" />
+      <SignOutButton />
+    </View>
+  </View>
   );
 }
