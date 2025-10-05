@@ -5,6 +5,7 @@ import { useAdminActions } from '@/hooks/use-admin-actions';
 import EventForm from './EventForm';
 import BusinessForm from './BusinessForm';
 import RemoveEventModal from './RemoveEventModal';
+import RemoveBusinessModal from './RemoveBusinessModal';
 
 interface AdminModalProps {
   visible: boolean;
@@ -17,6 +18,7 @@ const AdminModal = ({ visible, onClose }: AdminModalProps) => {
   const [showEventForm, setShowEventForm] = useState(false);
   const [showBusinessForm, setShowBusinessForm] = useState(false);
   const [showRemoveEventModal, setShowRemoveEventModal] = useState(false);
+  const [showRemoveBusinessModal, setShowRemoveBusinessModal] = useState(false);
 
   if (!user || user.role !== 'admin') {
     return (
@@ -35,29 +37,6 @@ const AdminModal = ({ visible, onClose }: AdminModalProps) => {
       </Modal>
     );
   }
-
-  const handleRemoveEvent = async () => {
-    // for demo; later you can show a picker
-    Alert.prompt('Remove Event', 'Enter Event ID to delete', async (id) => {
-      try {
-        await removeEvent(id);
-        Alert.alert('Success', 'Event removed.');
-      } catch (err) {
-        Alert.alert('Error', (err as Error).message);
-      }
-    });
-  };
-
-  const handleRemoveBusiness = async () => {
-    Alert.prompt('Remove Business', 'Enter Business ID to delete', async (id) => {
-      try {
-        await removeBusiness(id);
-        Alert.alert('Success', 'Business removed.');
-      } catch (err) {
-        Alert.alert('Error', (err as Error).message);
-      }
-    });
-  };
 
   return (
     <Modal animationType="slide" transparent visible={visible} onRequestClose={onClose}>
@@ -88,7 +67,7 @@ const AdminModal = ({ visible, onClose }: AdminModalProps) => {
 
           <Pressable
             className="bg-green-100 rounded-md py-2 px-4 mb-2"
-            onPress={handleRemoveBusiness}
+            onPress={() => setShowRemoveBusinessModal(true)}
           >
             <Text className="text-center text-green-700 font-medium">Remove Business</Text>
           </Pressable>
@@ -103,6 +82,7 @@ const AdminModal = ({ visible, onClose }: AdminModalProps) => {
       {showEventForm && <EventForm visible={showEventForm} onClose={() => setShowEventForm(false)} />}
       {showBusinessForm && <BusinessForm visible={showBusinessForm} onClose={() => setShowBusinessForm(false)} />}
       {showRemoveEventModal && <RemoveEventModal visible={showRemoveEventModal} onClose={() => setShowRemoveEventModal(false)} />}
+      {showRemoveBusinessModal && <RemoveBusinessModal visible={showRemoveBusinessModal} onClose={() => setShowRemoveBusinessModal(false)} />}
     </Modal>
   );
 };
