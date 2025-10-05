@@ -102,7 +102,7 @@ const AdminModal = ({ visible, onClose }: AdminModalProps) => {
       {/* Sub-modals */}
       {showEventForm && <EventForm visible={showEventForm} onClose={() => setShowEventForm(false)} />}
       {showBusinessForm && <BusinessForm visible={showBusinessForm} onClose={() => setShowBusinessForm(false)} />}
-      {showRemoveEventModal && <RemoveEventModal visible={showRemoveEventModal} onClose={() => setRemoveEventModal(false)} />}
+      {showRemoveEventModal && <RemoveEventModal visible={showRemoveEventModal} onClose={() => setShowRemoveEventModal(false)} />}
     </Modal>
   );
 };
