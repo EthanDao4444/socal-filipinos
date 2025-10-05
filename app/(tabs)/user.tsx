@@ -71,7 +71,7 @@ export default function User() {
 
   return (
     <View className="flex-1 bg-white">
-    <View className="flex-1 flex-col justify-center items-center mt-28">
+    <View className="flex-1 flex-col justify-center items-center">
       {user?.avatar_url ? (
         <Image
           source={{ uri: user.avatar_url }}
