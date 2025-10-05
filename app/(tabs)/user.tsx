@@ -3,7 +3,9 @@ import { supabase} from '@/utils/supabase';
 import { Modal, View, Text, TouchableOpacity, Animated, Dimensions, Image } from 'react-native'
 import type { Session } from '@supabase/supabase-js';
 import SignOutButton from '@/components/social-auth-buttons/sign-out-button';
-import { Button } from '@/components/Button';
+import { Button } from '@/components/default/Button';
+import SavedItemsModal from '@/components/SavedModal';
+import { Ionicons } from '@expo/vector-icons';
 
 interface User {
   full_name: string;
@@ -19,7 +21,8 @@ export default function User() {
   const [modalVisible, setModalVisible] = useState(false)
   const [events, setEvents] = useState<string[]>([]) // Replace string with your Event type
   const [isLoading, setIsLoading] = useState<boolean>(true)
-  
+  const [savedVisible, setSavedVisible] = useState(false);
+
   const screenHeight = Dimensions.get('window').height
 
   useEffect(() => {
@@ -64,11 +67,6 @@ export default function User() {
     console.log("User fetched: ", user);
   }, [session]);
 
-  const handleRegisteredEvents = () => {
-
-    setModalVisible(true)
-  }
-
   return (
     <View className="flex-1 bg-white">
     <View className="flex-1 flex-col justify-center items-center">
@@ -89,48 +87,11 @@ export default function User() {
         title="Edit Bio"
       />
       <Button className="w-3/4 bg-white shadow-lg rounded-lg px-6 py-2 mt-12" title="User Settings"/>
-      <Button 
-        className="w-3/4 bg-white shadow-lg rounded-lg px-6 py-2 mt-12" 
-        title="Registered Events"
-        onPress={handleRegisteredEvents}
-      />
-      <Modal
-        transparent
-        visible={modalVisible}
-        animationType="none"
-      >
-        {/* Touchable background to close modal */}
-        <TouchableOpacity
-          className="flex-1 bg-opacity-50"
-          activeOpacity={1}
-          onPress={() => setModalVisible(false)}
-        />
-
-        {/* Sliding modal content */}
-        <Animated.View
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            width: '100%',
-            height: screenHeight,
-            backgroundColor: 'white',
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
-            padding: 16,
-            maxHeight: '50%',
-          }}
-        >
-          <Text className="text-lg font-bold mb-4">Your Events</Text>
-
-          <TouchableOpacity
-            onPress={() => setModalVisible(false)}
-            className="bg-red-500 px-4 py-2 rounded-lg mt-4"
-          >
-            <Text className="text-white text-center font-semibold">Close</Text>
-          </TouchableOpacity>
-        </Animated.View>
-      </Modal>
+      <Button className="w-3/4 bg-white shadow-lg rounded-lg px-6 py-2 mt-12" title="Saved Events/Businesses" onPress={() => setSavedVisible(true)}/>
       <Button className="w-3/4 bg-white shadow-lg rounded-lg px-6 py-2 mt-12" title="Friends List"/>
+
+      {/* MODALS */}
+      <SavedItemsModal visible={savedVisible} onClose={() => setSavedVisible(false)} />
     </View>
 
     <View className="mb-10 px-6 items-center">

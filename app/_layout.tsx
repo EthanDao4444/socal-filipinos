@@ -3,7 +3,7 @@ import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import 'react-native-reanimated'
 
-import { SplashScreenController } from '@/components/SplashScreenController'
+import { SplashScreenController } from '@/components/default/SplashScreenController'
 
 import { useAuthContext } from '@/hooks/use-auth-context'
 import { useColorScheme } from '@/hooks/use-color-scheme'

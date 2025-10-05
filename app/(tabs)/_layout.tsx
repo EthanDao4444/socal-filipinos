@@ -1,25 +1,46 @@
 import { Tabs, Link } from 'expo-router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
+import AdminModal from '@/components/admin/AdminModal';
+import { supabase } from '@/utils/supabase';
+import { useAuthContext } from '@/hooks/use-auth-context';
 
 export default function TabLayout() {
-  const HamburgerMenuButton = ({ color = 'black' }) => (
-    <Pressable
-      onPress={() => {
-        console.log('Open Hamburger Menu/Drawer');
-      }}
-      className="ml-4"
-    >
-      <Feather name="menu" size={32} color={color} />
-    </Pressable>
-  );
+  const { user } = useAuthContext();
+
+  const MenuButton = ({ color = 'black' }) => {
+
+    if (!user) return <Text>Please log in</Text>;
+
+    const [modalVisible, setModalVisible] = useState(false);
+    const role = user.role;
+
+    if (role !== 'admin') return null; // Only show for admins
+
+    return (
+      <>
+        <Pressable
+          onPress={() => setModalVisible(true)}
+          className="ml-4"
+        >
+          <Feather name="plus" size={32} color={color} />
+        </Pressable>
+
+        {/* Admin modal */}
+        <AdminModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+        />
+      </>
+    );
+  };
   return (
     <Tabs
       screenOptions={{
         headerShown: true,
-        headerLeft: ({ tintColor }) => <HamburgerMenuButton />,
+        headerLeft: ({ tintColor }) => <MenuButton />,
         headerTitle: () =>(
           <View className="flex-row items-center">
               <Image 
@@ -27,9 +48,6 @@ export default function TabLayout() {
                 className="w-14 h-14 rounded-2xl mr-4"
               />
               <Text className="font-adlam text-black text-2xl">Kababayan</Text>
-              <View>
-                <Ionicons name="help-circle-outline" size={48} color="#757575" />
-              </View>
           </View>
         ),
         headerStyle: {
@@ -49,13 +67,6 @@ export default function TabLayout() {
             tabBarIcon: ({ color }) => <Feather size={28} name="home" color={color} />,
           }}
         />
-        {/* <Tabs.Screen
-          name="businesses"
-          options={{
-            title: 'Businesses',
-            tabBarIcon: ({ color }) => <Feather size={28} name="briefcase" color={color} />,
-          }}
-        /> */}
         <Tabs.Screen
           name="celebrate"
           options={{
