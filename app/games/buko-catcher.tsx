@@ -49,14 +49,14 @@ export default function BukoCatcher() {
           ...prev,
           {
             id: bukoId.current++,
-            x: Math.random() * (screenWidth - 30),
+            x: Math.random() * (screenWidth - 120) + 60,
             y: -30,
             radius: 15,
-            speed: 2 + Math.random() * 2,
+            speed: 1 + Math.random() * 2,
           },
         ]);
       }
-    }, 1000);
+    }, 2000);
 
     return () => clearInterval(interval);
   }, [gameOver]);
@@ -80,10 +80,10 @@ export default function BukoCatcher() {
             const cartBottom = cartY + cartHeight;
 
             const isColliding =
-              bukoRight >= cartLeft &&
-              bukoLeft <= cartRight &&
-              bukoBottom >= cartTop &&
-              bukoTop <= cartBottom;
+              bukoLeft >= cartLeft &&
+              bukoRight <= cartRight &&
+              bukoTop <= cartBottom &&
+              bukoBottom >= (cartTop - 140)
 
             if (isColliding) {
               setScore(s => s + 1);
@@ -116,6 +116,7 @@ export default function BukoCatcher() {
         let newX = gesture.moveX - cartWidth / 2;
         newX = Math.max(0, Math.min(screenWidth - cartWidth, newX));
         cartX.setValue(newX); 
+        cartXValue.current = newX;
       },
     })
   ).current;
