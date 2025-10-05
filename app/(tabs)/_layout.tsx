@@ -1,6 +1,6 @@
 import { Tabs, Link } from 'expo-router';
 import React from 'react';
-import { Pressable } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
 export default function TabLayout() {
@@ -19,9 +19,17 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: true,
         headerLeft: ({ tintColor }) => <HamburgerMenuButton />,
-        headerTitle: 'Kababayan',
+        headerTitle: () =>(
+          <View className="flex-row items-center space-x-3">
+            <Image 
+              source={require('../../assets/images/socal-filipinos-logo.jpg')} 
+              className="w-14 h-14 rounded-2xl mr-4"
+            />
+            <Text className="font-adlam text-black text-2xl">Kababayan</Text>
+          </View>
+        ),
         headerStyle: {
-          height: 115
+          height: 120
         }
       }}>
       <Tabs.Screen
