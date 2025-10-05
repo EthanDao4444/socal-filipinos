@@ -1,5 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, Dimensions, TouchableOpacity, StyleSheet, Image, PanResponder} from 'react-native';
+import {
+  View,
+  Text,
+  Dimensions,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  PanResponder,
+  Animated,
+} from 'react-native';
 
 interface Buko {
   x: number;
@@ -12,18 +21,27 @@ interface Buko {
 export default function BukoCatcher() {
   const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
-  const [cartX, setCartX] = useState(screenWidth / 2 - 25);
+  const cartWidth = 120;
+  const cartHeight = 80;
+  const cartY = screenHeight - 80;
+
   const [bukos, setBukos] = useState<Buko[]>([]);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
   const [gameOver, setGameOver] = useState(false);
+
   const bukoId = useRef(0);
+  const cartX = useRef(new Animated.Value(screenWidth / 2 - cartWidth / 2)).current;
+  const cartXValue = useRef(screenWidth / 2 - cartWidth / 2);
 
-  const cartWidth = 120;
-  const cartHeight = 80;
+  useEffect(() => {
+    const sub = cartX.addListener(({ value }) => {
+      cartXValue.current = value;
+    });
+    return () => cartX.removeListener(sub);
+  }, [cartX]);
 
-
-  // Spawn bukos every second
+  // Spawn bukos
   useEffect(() => {
     const interval = setInterval(() => {
       if (!gameOver) {
@@ -43,7 +61,6 @@ export default function BukoCatcher() {
     return () => clearInterval(interval);
   }, [gameOver]);
 
-  // Game loop
   useEffect(() => {
     const loop = setInterval(() => {
       if (gameOver) return;
@@ -52,17 +69,27 @@ export default function BukoCatcher() {
         prev
           .map(buko => ({ ...buko, y: buko.y + buko.speed }))
           .filter(buko => {
-            // Catch check
-            if (
-                buko.y + buko.radius >= screenHeight - 80 && // cart y
-                buko.y - buko.radius <= screenHeight - 80 + cartHeight &&
-                buko.x >= cartX &&
-                buko.x <= cartX + cartWidth
-              ) {
-                setScore(s => s + 1);
-                return false;
+            const bukoLeft = buko.x;
+            const bukoRight = buko.x + buko.radius * 2;
+            const bukoTop = buko.y;
+            const bukoBottom = buko.y + buko.radius * 2;
+
+            const cartLeft = cartXValue.current;
+            const cartRight = cartLeft + cartWidth;
+            const cartTop = cartY;
+            const cartBottom = cartY + cartHeight;
+
+            const isColliding =
+              bukoRight >= cartLeft &&
+              bukoLeft <= cartRight &&
+              bukoBottom >= cartTop &&
+              bukoTop <= cartBottom;
+
+            if (isColliding) {
+              setScore(s => s + 1);
+              return false;
             }
-            // Miss check
+
             if (buko.y - buko.radius > screenHeight) {
               setLives(l => {
                 const newLives = l - 1;
@@ -71,22 +98,24 @@ export default function BukoCatcher() {
               });
               return false;
             }
+
             return true;
           })
       );
-    }, 16); // ~60fps
+    }, 16);
 
     return () => clearInterval(loop);
-  }, [cartX, gameOver]);
+  }, [gameOver]);
 
+  // Pan responder (imperative movement)
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
-      onPanResponderMove: (_, gestureState) => {
-        let newX = gestureState.moveX - cartWidth / 2;
+      onPanResponderMove: (_, gesture) => {
+        let newX = gesture.moveX - cartWidth / 2;
         newX = Math.max(0, Math.min(screenWidth - cartWidth, newX));
-        setCartX(newX);
+        cartX.setValue(newX); 
       },
     })
   ).current;
@@ -100,10 +129,9 @@ export default function BukoCatcher() {
 
   return (
     <View style={styles.container}>
-      {/* Score */}
       <Text style={styles.hud}>🥥 Score: {score} | ❤️ {lives}</Text>
 
-      {/* Bukos */}
+      {/* Falling Bukos */}
       {bukos.map(buko => (
         <View
           key={buko.id}
@@ -120,24 +148,23 @@ export default function BukoCatcher() {
       ))}
 
       {/* Cart */}
-
-       <View
+      <View
         {...panResponder.panHandlers}
         style={{ position: 'absolute', bottom: 0, height: 200, width: '100%' }}
-        >
-        <Image
-            source={require('../../assets/images/derek_ethan_vincent.jpg')}
-            style={{
+      >
+        <Animated.Image
+          source={require('../../assets/images/derek_ethan_vincent.jpg')}
+          style={{
             position: 'absolute',
             bottom: 80,
-            left: cartX,
+            transform: [{ translateX: cartX }],
             width: cartWidth,
             height: cartHeight,
             resizeMode: 'contain',
-            }}
+          }}
         />
       </View>
-      {/* Game Over */}
+
       {gameOver && (
         <View style={styles.overlay}>
           <Text style={styles.gameOverText}>GAME OVER 🥥</Text>
@@ -156,32 +183,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#87ceeb',
     alignItems: 'center',
-    justifyContent: 'flex-start',
   },
   hud: {
     fontSize: 20,
     fontWeight: 'bold',
     marginTop: 20,
-  },
-  controls: {
-    position: 'absolute',
-    bottom: 35,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '60%',
-  },
-  button: {
-    backgroundColor: '#fff',
-    padding: 10,
-    borderRadius: 50,
-    marginHorizontal: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-  },
-  btnText: {
-    fontSize: 24,
   },
   overlay: {
     position: 'absolute',
