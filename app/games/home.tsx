@@ -12,7 +12,7 @@ export default function BattleJeepney() {
     >
 
     <View className="flex-1">
-      {/* Button 1 - top left */}
+
       <Link href="/games/check-fighter" asChild>
         <Pressable
           className="bg-blue-500 rounded-lg p-2 absolute"
