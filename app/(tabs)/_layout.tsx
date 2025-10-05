@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
-import AdminModal from '@/components/modals/AdminModal';
+import AdminModal from '@/components/admin/AdminModal';
 import { supabase } from '@/utils/supabase';
 import { useAuthContext } from '@/hooks/use-auth-context';
 
