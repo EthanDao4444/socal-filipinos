@@ -36,6 +36,7 @@ export default function BattleJeepney() {
               <FontAwesome5 name="bolt" size={24} color="white" />
             </Pressable>
           </Link>          
+        </View>
           {/* Link to a second game
           <Link href="/games/memory-game" asChild>
             <Pressable className="bg-purple-500 rounded-lg shadow-md p-4 mb-6 flex-row items-center justify-between active:bg-purple-600">
