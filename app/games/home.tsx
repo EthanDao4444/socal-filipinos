@@ -9,7 +9,6 @@ import { FontAwesome5 } from '@expo/vector-icons';
 export default function BattleJeepney() {
   return (
     <>
-      <Stack.Screen options={{ headerShown: false }} />
       <View className="flex-1 items-center justify-center bg-gray-100 p-8">
         <View className="items-center mb-12">
           <Text className="font-adlam text-5xl text-gray-800">LARO TAYO!</Text>
@@ -40,14 +39,29 @@ export default function BattleJeepney() {
           {/* Link to a second game
           <Link href="/games/memory-game" asChild>
             <Pressable className="bg-purple-500 rounded-lg shadow-md p-4 mb-6 flex-row items-center justify-between active:bg-purple-600">
+
+          <Link href="/games/cooking-lola" asChild>
+            <Pressable className="bg-orange-600 rounded-lg shadow-md p-4 mb-6 flex-row items-center justify-between active:bg-purple-600">
               <View>
-                  <Text className="text-white font-bold text-xl">Memory Match</Text>
-                  <Text className="text-white text-sm">Find all the pairs.</Text>
+                  <Text className="text-white font-bold text-xl">Cooking Lola</Text>
+                  <Text className="text-white text-sm">Prove you're a Lumpia Legend.</Text>
+              </View>
+              <FontAwesome5 name="brain" size={24} color="white" />
+            </Pressable>
+          </Link>
+          
+          {/* Buko catcher */ }
+          <Link href="/games/buko-catcher" asChild>
+            <Pressable className="bg-green-600 rounded-lg shadow-md p-4 mb-6 flex-row items-center justify-between active:bg-purple-600">
+              <View>
+                  <Text className="text-white font-bold text-xl">Buko Catcher</Text>
+                  <Text className="text-white text-sm">Catch all of the coconuts!</Text>
               </View>
               <FontAwesome5 name="brain" size={24} color="white" />
             </Pressable>
           </Link>
 
+          {/* link to 3rd game}
           <Pressable className="bg-gray-400 rounded-lg p-4 flex-row items-center justify-between opacity-60">
             <View>
                   <Text className="text-white font-bold text-xl">Puzzle Mania</Text>
