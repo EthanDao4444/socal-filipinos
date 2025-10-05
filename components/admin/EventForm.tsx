@@ -7,11 +7,9 @@ import {
   Pressable,
   ScrollView,
   Alert,
-  Platform,
 } from 'react-native';
 import MapView, { Marker, MapPressEvent } from 'react-native-maps';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { supabase } from '@/utils/supabase';
 
 interface EventFormProps {
@@ -40,11 +38,34 @@ export default function EventForm({ visible, onClose, existingEvent }: EventForm
   const [showEndPicker, setShowEndPicker] = useState(false);
   const mapRef = useRef<MapView | null>(null);
 
-  const handleMapPress = (e: MapPressEvent) => {
+  // --- Reverse Geocode using Nominatim (OpenStreetMap) ---
+  const fetchCityName = async (lat: number, lon: number) => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+      );
+      const data = await response.json();
+      const city =
+        data.address?.city ||
+        data.address?.town ||
+        data.address?.village ||
+        data.address?.county ||
+        '';
+      const state = data.address.state;
+      return `${city}, ${state}`;
+    } catch (error) {
+      console.error('Error fetching city:', error);
+      return '';
+    }
+  };
+
+  const handleMapPress = async (e: MapPressEvent) => {
     const { latitude, longitude } = e.nativeEvent.coordinate;
+    const city = await fetchCityName(latitude, longitude);
     setForm((prev) => ({
       ...prev,
       event_location: { latitude, longitude },
+      location_address: city,
     }));
   };
 
@@ -134,33 +155,12 @@ export default function EventForm({ visible, onClose, existingEvent }: EventForm
             onChangeText={(val) => setForm({ ...form, image_url: val })}
           />
 
-          {/* Google Places Search */}
-          {/* <GooglePlacesAutocomplete
-            placeholder="Search for location"
-            fetchDetails
-            onPress={(data, details = null) => {
-              const { lat, lng } = details?.geometry.location;
-              setForm({
-                ...form,
-                location_address: data.description,
-                event_location: { latitude: lat, longitude: lng },
-              });
-              mapRef.current?.animateToRegion({
-                latitude: lat,
-                longitude: lng,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-              });
-            }}
-            query={{
-              key: 'YOUR_GOOGLE_MAPS_API_KEY',
-              language: 'en',
-            }}
-            styles={{
-              textInputContainer: { width: '100%' },
-              textInput: { height: 44, color: '#5d5d5d', fontSize: 16 },
-            }}
-          /> */}
+          {/* City info */}
+          {form.location_address ? (
+            <Text className="text-gray-700 mb-2">
+              City: <Text className="font-semibold">{form.location_address}</Text>
+            </Text>
+          ) : null}
 
           {/* Map Picker */}
           <View className="mt-3 mb-3 h-64 rounded-xl overflow-hidden">
@@ -178,12 +178,7 @@ export default function EventForm({ visible, onClose, existingEvent }: EventForm
               <Marker
                 coordinate={form.event_location}
                 draggable
-                onDragEnd={(e) => {
-                  setForm({
-                    ...form,
-                    event_location: e.nativeEvent.coordinate,
-                  });
-                }}
+                onDragEnd={(e) => handleMapPress(e)}
               />
             </MapView>
           </View>
@@ -219,7 +214,6 @@ export default function EventForm({ visible, onClose, existingEvent }: EventForm
             />
           )}
 
-          {/* Buttons */}
           <Pressable onPress={handleSubmit} className="bg-blue-600 rounded-md py-2 mt-3">
             <Text className="text-center text-white font-semibold">
               {existingEvent ? 'Update Event' : 'Save Event'}
