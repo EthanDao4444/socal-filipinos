@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Button, Text, View, Image } from 'react-native';
 import { Link, Stack } from 'expo-router';
 
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import Animated, {
   withTiming,
@@ -18,20 +19,27 @@ import { StyleSheet, Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('screen');
 const images = [
-  require('../../assets/cooking-lola/lumpia-1.jpg'),
-  require('../../assets/cooking-lola/lumpia-2.jpg'),
-  require('../../assets/cooking-lola/lumpia-3.jpg'),
-  require('../../assets/cooking-lola/lumpia-3b.png'),
-  require('../../assets/cooking-lola/lumpia-4.jpg'),
-  require('../../assets/cooking-lola/lumpia-5.jpg'),
-  require('../../assets/cooking-lola/lumpia-6.jpg'),
+  require('../../assets/cooking-lola/lumpia-1-anno.jpg'),
+  require('../../assets/cooking-lola/lumpia-2-anno.jpg'),
+  require('../../assets/cooking-lola/lumpia-3-anno.jpg'),
+  require('../../assets/cooking-lola/lumpia-3b-anno.png'),
+  require('../../assets/cooking-lola/lumpia-4-anno.jpg'),
+  require('../../assets/cooking-lola/lumpia-5-anno.jpg'),
+  require('../../assets/cooking-lola/lumpia-6-anno.jpg'),
 ];
 
 export default function CookingLola() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [secondsLeft, setSecondsLeft] = useState(60);
 
   const goToNextImage = () => {
-    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
+    if (currentImageIndex + 1 === images.length) {
+      setScore(score + 1);
+      setCurrentImageIndex(0);
+    } else {
+      setCurrentImageIndex(currentImageIndex + 1);
+    }
   };
 
   const goToPreviousImage = () => {
@@ -76,15 +84,51 @@ export default function CookingLola() {
     })
     .runOnJS(true);
 
+  useEffect(() => {
+    if (secondsLeft <= 0) return; // Stop the timer when it reaches zero
+
+    const interval = setInterval(() => {
+      setSecondsLeft(prevSeconds => prevSeconds - 1);
+    }, 1000); // Update every second
+
+    return () => clearInterval(interval); // Clean up the interval on unmount or re-render
+  }, [secondsLeft]); // Re-run effect when secondsLeft changes
+
   return (
-    <GestureHandlerRootView className="flex-1 items-center justify-center">
-      <GestureDetector gesture={Gesture.Exclusive(swipeRight, swipeLeft, swipeUp, tap)}>
-        <Animated.View className="h-[300px] w-[400px]">
-          <Image
-            source={images[currentImageIndex]}
-            className="flex-1 object-cover h-[300px] w-[400px]"/>
-        </Animated.View>
-      </GestureDetector>
+    <GestureHandlerRootView className="flex-col items-center justify-between">
+      <View className="h-1/3 w-full bg-white p-3 justify-between items-center">
+        <View className="flex-row w-1/3 justify-center border-black border-4 rounded-lg p-1 pt-2">
+          <Ionicons name="time" size={34}/>
+          <Text className="text-5xl px-1 font-bold">
+            {secondsLeft}
+          </Text>
+        </View>
+        <View className="flex-col justify-start items-center">
+          <Text className="text-sm px-1">
+            SCORE
+          </Text>
+          <Text className="text-5xl p-1 font-bold">
+            {score}
+          </Text>
+        </View>
+        <View className="flex-col justify-start items-center">
+          <Text className="text-sm px-1">
+            HIGH SCORE
+          </Text>
+          <Text className="text-5xl p-1 font-bold">
+            {Math.max(67, score)}
+          </Text>
+        </View>
+      </View>
+      <View className="flex-1 bg-white p-5">
+        <GestureDetector gesture={Gesture.Exclusive(swipeRight, swipeLeft, swipeUp, tap)}>
+          <Animated.View className="h-[500px] w-[600px]">
+            <Image
+              source={images[currentImageIndex]}
+              className="flex-1 object-cover h-[500px] w-[600px]"/>
+          </Animated.View>
+        </GestureDetector>
+      </View>
     </GestureHandlerRootView>
   );
 }
