@@ -75,15 +75,6 @@ export default function Events() {
   }, [])
   return (
     <View className="flex-1 bg-white">
-      <View className="justify-end h-[140px] border border-gray-400 p-5">
-        <View className="flex-row justify-between">
-          <Ionicons name="add" size={50}/>
-          <Text className="text-3xl font-semibold">
-            Kababayan
-          </Text>
-          <Ionicons name="map" size={50}/>
-        </View>
-      </View>
       <View className="flex-row h-[90px] justify-end border border-gray-400 p-5">
         <TextInput
           className="flex-1 border-gray-400 rounded-lg h-[50px] px-3 mr-2 bg-gray-300 text-base"
