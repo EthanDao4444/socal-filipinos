@@ -34,36 +34,42 @@ export default function TabLayout() {
         ),
         headerStyle: {
           height: 120
+        },
+        tabBarStyle: {
+          height: 100,
+          borderTopWidth: 1.5,
+          marginTop: 2,
+          paddingTop: 16,
         }
       }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Events',
-        //   tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="businesses"
-        options={{
-          title: 'Businesses',
-        //   tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="games"
-        options={{
-          title: 'Fil-Am History',
-        //   tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}  
-      />
-      <Tabs.Screen
-        name="user"
-        options={{
-          title: 'User',
-        //   tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}  
-      />
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: 'Home',
+            tabBarIcon: ({ color }) => <Feather size={28} name="home" color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="businesses"
+          options={{
+            title: 'Businesses',
+            tabBarIcon: ({ color }) => <Feather size={28} name="briefcase" color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="games"
+          options={{
+            title: 'FAHM',
+            tabBarIcon: ({ color }) => <Feather size={28} name="calendar" color={color} />,
+          }}  
+        />
+        <Tabs.Screen
+          name="user"
+          options={{
+            title: 'User',
+            tabBarIcon: ({ color }) => <Feather size={28} name="user" color={color} />,
+          }}  
+        />
     </Tabs>
   );
 }
