@@ -57,10 +57,10 @@ export default function TabLayout() {
           }}
         /> */}
         <Tabs.Screen
-          name="games"
+          name="celebrate"
           options={{
-            title: 'FAHM',
-            tabBarIcon: ({ color }) => <Feather size={28} name="calendar" color={color} />,
+            title: 'Celebrate!',
+            tabBarIcon: ({ color }) => <Feather size={28} name="star" color={color} />,
           }}  
         />
         <Tabs.Screen
