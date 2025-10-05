@@ -2,6 +2,7 @@ import { Tabs, Link } from 'expo-router';
 import React from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function TabLayout() {
   const HamburgerMenuButton = ({ color = 'black' }) => (
@@ -20,12 +21,15 @@ export default function TabLayout() {
         headerShown: true,
         headerLeft: ({ tintColor }) => <HamburgerMenuButton />,
         headerTitle: () =>(
-          <View className="flex-row items-center space-x-3">
-            <Image 
-              source={require('../../assets/images/socal-filipinos-logo.jpg')} 
-              className="w-14 h-14 rounded-2xl mr-4"
-            />
-            <Text className="font-adlam text-black text-2xl">Kababayan</Text>
+          <View className="flex-row items-center">
+              <Image 
+                source={require('../../assets/images/socal-filipinos-logo.jpg')} 
+                className="w-14 h-14 rounded-2xl mr-4"
+              />
+              <Text className="font-adlam text-black text-2xl">Kababayan</Text>
+              <View>
+                <Ionicons name="help-circle-outline" size={48} color="#757575" />
+              </View>
           </View>
         ),
         headerStyle: {
