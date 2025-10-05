@@ -1,133 +1,228 @@
-import { useEffect, useState } from 'react';
-import { supabase} from '@/utils/supabase';
-import { Text, View, ScrollView, TextInput, Image, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Modal, Image, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import "../../global.css"
+import { supabase } from '@/utils/supabase';
+import "../../global.css";
 
-interface User {
-  first_name: string;
-  last_name: string;
+interface Event {
+  event_id: string;
+  event_name: string;
+  event_description: string | null;
+  start_date: string;
+  end_date: string;
+  organizer_email: string | null;
+  price: number | null;
+  image_url: string | null;
+  location_address: string | null;
 }
 
-export default function Events() {
-  const [users, setUsers] = useState<User[]>([]);
+interface Business {
+  business_id: string;
+  business_name: string;
+  business_type: string | null;
+  location_address: string | null;
+  image_url: string | null;
+}
 
-  const data = [
-    {
-      "name": "FV Cultural Festival",
-      "location": "Fountain Valley, CA",
-      "date": "Friday, August 14",
-      "time": "5-8pm",
-      "host": "FUSION",
-      "attendees": 245,
-      "price": "Free",
-      "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwPHz8b-e_VUmF3M6Un6Rg-D1osZovxfMmJw&s",
-      "contact": "ManILoveFilipinos@gmail.com",
-      "description": "The cultural festival is back this year with more fun and immersive experiences! Experience the rich heritage, music, dances, food, performances, games, workshops, raffles, and more. Dress your best for this event!"
-    },
-    {
-      "name": "FV Cultural Festival",
-      "location": "Fountain Valley, CA",
-      "date": "Friday, August 14",
-      "time": "5-8pm",
-      "host": "FUSION",
-      "attendees": 245,
-      "price": "Free",
-      "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwPHz8b-e_VUmF3M6Un6Rg-D1osZovxfMmJw&s",
-      "contact": "ManILoveFilipinos@gmail.com",
-      "description": "The cultural festival is back this year with more fun and immersive experiences! Experience the rich heritage, music, dances, food, performances, games, workshops, raffles, and more. Dress your best for this event!"
-    },
-    {
-      "name": "FV Cultural Festival",
-      "location": "Fountain Valley, CA",
-      "date": "Friday, August 14",
-      "time": "5-8pm",
-      "host": "FUSION",
-      "attendees": 245,
-      "price": "Free",
-      "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwPHz8b-e_VUmF3M6Un6Rg-D1osZovxfMmJw&s",
-      "contact": "ManILoveFilipinos@gmail.com",
-      "description": "The cultural festival is back this year with more fun and immersive experiences! Experience the rich heritage, music, dances, food, performances, games, workshops, raffles, and more. Dress your best for this event!"
-    },
-    {
-      "name": "FV Cultural Festival",
-      "location": "Fountain Valley, CA",
-      "date": "Friday, August 14",
-      "time": "5-8pm",
-      "host": "FUSION",
-      "attendees": 245,
-      "price": "Free",
-      "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwPHz8b-e_VUmF3M6Un6Rg-D1osZovxfMmJw&s",
-      "contact": "ManILoveFilipinos@gmail.com",
-      "description": "The cultural festival is back this year with more fun and immersive experiences! Experience the rich heritage, music, dances, food, performances, games, workshops, raffles, and more. Dress your best for this event!"
-    }
-  ];
+export default function EventsAndBusinesses() {
+  const [activeTab, setActiveTab] = useState<'events' | 'businesses'>('events');
+  const [events, setEvents] = useState<Event[]>([]);
+  const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<Event | Business | null>(null);
+  const [search, setSearch] = useState('');
+
+  // 🔹 Fetch Events
+  const fetchEvents = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.from('events').select('*').order('start_date', { ascending: true });
+    if (error) console.error('Error fetching events:', error.message);
+    else setEvents(data || []);
+    setLoading(false);
+  };
+
+  // 🔹 Fetch Businesses
+  const fetchBusinesses = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.from('businesses').select('*').order('created_at', { ascending: false });
+    if (error) console.error('Error fetching businesses:', error.message);
+    else setBusinesses(data || []);
+    setLoading(false);
+  };
 
   useEffect(() => {
-    const fetchUsers = async() => {
-        const { data, error } = await supabase
-          .from('users')
-          .select();
-        console.log(data);
-    }
+    if (activeTab === 'events') fetchEvents();
+    else fetchBusinesses();
+  }, [activeTab]);
 
-    // fetchUsers();
-  }, [])
+  // 🔹 Filtered by search
+  const filtered = (activeTab === 'events' ? events : businesses).filter((item) =>
+    (activeTab === 'events'
+      ? (item as Event).event_name?.toLowerCase()
+      : (item as Business).business_name?.toLowerCase()
+    ).includes(search.toLowerCase())
+  );
+
+  // 🔹 Save button handler
+  const handleSave = () => {
+    // Could store favorites, RSVP, etc.
+    alert(`${activeTab === 'events' ? 'Event' : 'Business'} saved!`);
+    setSelectedItem(null);
+  };
+
+  console.log(events, businesses)
   return (
     <View className="flex-1 bg-white">
-      <View className="flex-row h-[90px] justify-end border border-gray-400 p-5">
+      {/* 🔹 Search bar */}
+      <View className="flex-row h-[90px] justify-end border-b border-gray-300 p-5">
         <TextInput
-          className="flex-1 border-gray-400 rounded-lg h-[50px] px-3 mr-2 bg-gray-300 text-base"
-          placeholder="Search events, locations, organizers..."
-          placeholderTextColor="#aaa"
+          className="flex-1 border border-gray-400 rounded-lg h-[50px] px-3 mr-2 bg-gray-200 text-base"
+          placeholder={`Search ${activeTab === 'events' ? 'events' : 'businesses'}...`}
+          value={search}
+          onChangeText={setSearch}
+          placeholderTextColor="#888"
         />
         <TouchableOpacity>
-          <Ionicons name="options" size={50} color="#808080"/>
+          <Ionicons name="search" size={35} color="#666" />
         </TouchableOpacity>
       </View>
-      <View className="flex-col h-[90px] p-5">
-        <Text className="text-3xl font-semibold">
-          Upcoming Events
-        </Text>
-        <Text className="text-xl">
-          {data.length} events found
-        </Text>
+
+      {/* 🔹 Tabs */}
+      <View className="flex-row justify-around border-b border-gray-300">
+        <TouchableOpacity onPress={() => setActiveTab('events')} className="flex-1 py-3">
+          <Text className={`text-center text-lg font-semibold ${activeTab === 'events' ? 'text-blue-600' : 'text-gray-500'}`}>
+            Events
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setActiveTab('businesses')} className="flex-1 py-3">
+          <Text className={`text-center text-lg font-semibold ${activeTab === 'businesses' ? 'text-blue-600' : 'text-gray-500'}`}>
+            Businesses
+          </Text>
+        </TouchableOpacity>
       </View>
-      <ScrollView className="flex-1 bg-white p-5">
-        {data.map((item, index) => (
-          <TouchableOpacity
-            key={index}
-            className="flex-row box-border h-40 bg-white shadow-lg rounded-lg mb-4">
-            <Image
-              source={{ uri: item.imageUrl }}
-              className="w-2/5 rounded-lg"
-            />
-            <View className="flex-1 bg-white p-3 justify-between">
-              <Text className="text-2xl font-semibold">
-                {item.name}
-              </Text>
-              <View className="flex-row justify-start">
-                <Ionicons name="location" size={15}/>
-                <Text className="text-l px-1">
-                  {item.location}
+
+      {/* 🔹 List */}
+      {loading ? (
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#000" />
+        </View>
+      ) : (
+        <ScrollView className="flex-1 p-4">
+          {filtered.map((item: any) => (
+            <TouchableOpacity
+              key={item.event_id || item.business_id}
+              className="flex-row h-40 bg-white shadow-md rounded-lg mb-4"
+              onPress={() => setSelectedItem(item)}
+            >
+              <Image
+                source={{ uri: item.image_url || 'https://placehold.co/600x400' }}
+                className="w-2/5 rounded-l-lg"
+              />
+              <View className="flex-1 p-3 justify-between">
+                <Text className="text-xl font-semibold">
+                  {activeTab === 'events' ? item.event_name : item.business_name}
                 </Text>
+                <View className="flex-row items-center">
+                  <Ionicons name="location" size={15} color="#555" />
+                  <Text className="ml-1 text-gray-600">{item.location_address || 'N/A'}</Text>
+                </View>
+                {activeTab === 'events' ? (
+                  <>
+                    <View className="flex-row items-center">
+                      <Ionicons name="calendar" size={15} color="#555" />
+                      <Text className="ml-1 text-gray-600">
+                        {new Date(item.start_date).toLocaleDateString()} - {new Date(item.end_date).toLocaleDateString()}
+                      </Text>
+                    </View>
+                    <Text className="text-gray-600 text-sm">{item.organizer_email || ''}</Text>
+                  </>
+                ) : (
+                  <Text className="text-gray-600 text-sm">{item.business_type || ''}</Text>
+                )}
               </View>
-              <View className="flex-row justify-start">
-                <Ionicons name="calendar" size={15}/>
-                <Text className="text-l px-1">
-                  {item.date}, {item.time}
+            </TouchableOpacity>
+          ))}
+
+          {filtered.length === 0 && (
+            <Text className="text-center text-gray-500 mt-10">No {activeTab} found.</Text>
+          )}
+        </ScrollView>
+      )}
+
+      {/* 🔹 Modal for details */}
+{/* 🔹 Modal for details */}
+      <Modal visible={!!selectedItem} animationType="slide" transparent>
+        <View className="flex-1 justify-center items-center bg-black/50">
+          {selectedItem ? (
+            <View className="bg-white w-11/12 rounded-2xl p-5 max-h-[90%]">
+              <ScrollView>
+                <Image
+                  source={{ uri: selectedItem?.image_url || 'https://via.placeholder.com/150' }}
+                  className="w-full h-48 rounded-lg mb-4"
+                />
+
+                <Text className="text-2xl font-bold mb-2">
+                  {activeTab === 'events'
+                    ? (selectedItem as any)?.event_name
+                    : (selectedItem as any)?.business_name}
                 </Text>
-              </View>
-              <View className="flex-row justify-start">
-                <Ionicons name="people" size={15}/>
-                <Text className="text-l px-1">
-                  {item.host}
-                </Text>
+
+                {activeTab === 'events' ? (
+                  <>
+                    <Text className="text-gray-600 mb-1">
+                      {selectedItem?.start_date
+                        ? `${new Date((selectedItem as any).start_date).toLocaleString()} - ${new Date(
+                            (selectedItem as any).end_date
+                          ).toLocaleString()}`
+                        : ''}
+                    </Text>
+                    <Text className="text-gray-600 mb-2">
+                      {(selectedItem as any)?.location_address || ''}
+                    </Text>
+                    <Text className="text-base mb-3">
+                      {(selectedItem as any)?.event_description || ''}
+                    </Text>
+                    <Text className="text-gray-500 mb-3">
+                      Organizer: {(selectedItem as any)?.organizer_email || 'N/A'}
+                    </Text>
+                  </>
+                ) : (
+                  <>
+                    <Text className="text-gray-600 mb-2">
+                      {(selectedItem as any)?.location_address || ''}
+                    </Text>
+                    <Text className="text-gray-500 mb-2">
+                      Type: {(selectedItem as any)?.business_type || ''}
+                    </Text>
+                  </>
+                )}
+              </ScrollView>
+
+              {/* Buttons */}
+              <View className="flex-row justify-between mt-3">
+                <TouchableOpacity
+                  onPress={handleSave}
+                  className="flex-1 bg-blue-600 py-2 rounded-lg mr-2"
+                >
+                  <Text className="text-white text-center font-semibold">Save</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setSelectedItem(null)}
+                  className="flex-1 bg-gray-300 py-2 rounded-lg"
+                >
+                  <Text className="text-center font-semibold">Close</Text>
+                </TouchableOpacity>
               </View>
             </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+          ) : (
+            <View className="bg-white w-11/12 rounded-2xl p-5 items-center">
+              <ActivityIndicator size="large" color="#000" />
+              <Text className="mt-3 text-gray-600">Loading...</Text>
+            </View>
+          )}
+        </View>
+      </Modal>
+
     </View>
   );
 }
