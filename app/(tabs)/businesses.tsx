@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { supabase} from '@/utils/supabase';
 import { Text, View } from 'react-native';
 
+import "../../global.css"
+
 interface User {
   first_name: string;
   last_name: string;
@@ -22,7 +24,7 @@ export default function Businesses() {
   }, [])
   return (
     <View>
-      <Text className="color: blue;">a</Text>
+      <Text className="font-adlam">a</Text>
     </View>
   );
 }
