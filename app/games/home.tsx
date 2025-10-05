@@ -9,7 +9,6 @@ import { FontAwesome5 } from '@expo/vector-icons';
 export default function BattleJeepney() {
   return (
     <>
-      <Stack.Screen options={{ headerShown: false }} />
       <View className="flex-1 items-center justify-center bg-gray-100 p-8">
         <View className="items-center mb-12">
           <Text className="font-adlam text-5xl text-gray-800">LARO TAYO!</Text>
