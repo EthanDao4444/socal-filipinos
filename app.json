@@ -3,14 +3,10 @@
     "name": "socal-filipinos",
     "slug": "socal-filipinos",
     "version": "1.0.0",
-    "scheme": "socal-filipinos",
-    "platforms": [
-      "ios",
-      "android"
-    ],
+    "scheme": "socal-filipinos2",
     "web": {
       "bundler": "metro",
-      "output": "static",
+      "output": "single",
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
