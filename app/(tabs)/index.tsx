@@ -64,10 +64,42 @@ export default function EventsAndBusinesses() {
   );
 
   // 🔹 Save button handler
-  const handleSave = () => {
-    // Could store favorites, RSVP, etc.
-    alert(`${activeTab === 'events' ? 'Event' : 'Business'} saved!`);
-    setSelectedItem(null);
+  const handleSave = async () => {
+    if (!selectedItem) return;
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      alert('Error: User not logged in.');
+      return;
+    }
+
+    try {
+      if (activeTab === 'events') {
+        const { error } = await supabase.from('users_events').insert([
+          { user_id: user.id, event_id: (selectedItem as Event).event_id },
+        ]);
+        if (error) throw error;
+        alert('Event saved!');
+      } else {
+        const { error } = await supabase.from('users_businesses').insert([
+          { user_id: user.id, business_id: (selectedItem as Business).business_id },
+        ]);
+        if (error) throw error;
+        alert('Business saved!');
+      }
+
+      setSelectedItem(null);
+    } catch (err: any) {
+      if (err.message.includes('duplicate key value')) {
+        alert('Already saved.');
+      } else {
+        alert('Error saving: ' + err.message);
+      }
+    }
   };
 
   console.log(events, businesses)
