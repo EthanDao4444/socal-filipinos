@@ -12,8 +12,6 @@ interface User {
 export default function Events() {
   const [users, setUsers] = useState<User[]>([]);
 
-  const [searchTerm, setSearchTerm] = useState<string>("");
-
   const data = [
     {
       "name": "FV Cultural Festival",
@@ -62,19 +60,7 @@ export default function Events() {
       "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwPHz8b-e_VUmF3M6Un6Rg-D1osZovxfMmJw&s",
       "contact": "ManILoveFilipinos@gmail.com",
       "description": "The cultural festival is back this year with more fun and immersive experiences! Experience the rich heritage, music, dances, food, performances, games, workshops, raffles, and more. Dress your best for this event!"
-    },
-    {
-      "name": "FV Cultural Festival",
-      "location": "Fountain Valley, CA",
-      "date": "Friday, August 14",
-      "time": "5-8pm",
-      "host": "FUSION",
-      "attendees": 245,
-      "price": "Free",
-      "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwPHz8b-e_VUmF3M6Un6Rg-D1osZovxfMmJw&s",
-      "contact": "ManILoveFilipinos@gmail.com",
-      "description": "The cultural festival is back this year with more fun and immersive experiences! Experience the rich heritage, music, dances, food, performances, games, workshops, raffles, and more. Dress your best for this event!"
-    },
+    }
   ];
 
   useEffect(() => {
@@ -103,7 +89,6 @@ export default function Events() {
           className="flex-1 border-gray-400 rounded-lg h-[50px] px-3 mr-2 bg-gray-300 text-base"
           placeholder="Search events, locations, organizers..."
           placeholderTextColor="#aaa"
-          value={searchTerm}
         />
         <TouchableOpacity>
           <Ionicons name="options" size={50} color="#808080"/>
@@ -120,6 +105,7 @@ export default function Events() {
       <ScrollView className="flex-1 bg-white p-5">
         {data.map((item, index) => (
           <TouchableOpacity
+            key={index}
             className="flex-row box-border h-40 bg-white shadow-lg rounded-lg mb-4">
             <Image
               source={{ uri: item.imageUrl }}
