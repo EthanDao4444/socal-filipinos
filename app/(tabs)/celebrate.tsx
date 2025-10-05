@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase} from '@/utils/supabase';
 import { Text, View, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Button } from '@/components/Button';
+import { Button } from '@/components/default/Button';
 
 interface User {
   first_name: string;

@@ -12,7 +12,7 @@ export default function TabLayout() {
       }}
       className="ml-4"
     >
-      <Feather name="menu" size={32} color={color} />
+      <Feather name="plus" size={32} color={color} />
     </Pressable>
   );
   return (
@@ -27,9 +27,6 @@ export default function TabLayout() {
                 className="w-14 h-14 rounded-2xl mr-4"
               />
               <Text className="font-adlam text-black text-2xl">Kababayan</Text>
-              <View>
-                <Ionicons name="help-circle-outline" size={48} color="#757575" />
-              </View>
           </View>
         ),
         headerStyle: {
