@@ -1,12 +1,28 @@
-import { Tabs } from 'expo-router';
+import { Tabs, Link } from 'expo-router';
 import React from 'react';
+import { Pressable } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 
 export default function TabLayout() {
-
+  const HamburgerMenuButton = ({ color = 'black' }) => (
+    <Pressable
+      onPress={() => {
+        console.log('Open Hamburger Menu/Drawer');
+      }}
+      className="ml-4"
+    >
+      <Feather name="menu" size={32} color={color} />
+    </Pressable>
+  );
   return (
     <Tabs
       screenOptions={{
-        headerShown: false,
+        headerShown: true,
+        headerLeft: ({ tintColor }) => <HamburgerMenuButton />,
+        headerTitle: 'Kababayan',
+        headerStyle: {
+          height: 115
+        }
       }}>
       <Tabs.Screen
         name="index"

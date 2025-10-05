@@ -4,7 +4,12 @@ module.exports = {
 
   presets: [require('nativewind/preset')],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        "actor": ["Actor_400Regular"],
+        "adlam": ["ADLaMDisplay_400Regular"]
+      }
+    },
   },
   plugins: [],
 };
