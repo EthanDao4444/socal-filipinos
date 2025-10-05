@@ -26,7 +26,6 @@ export default function BattleJeepney() {
               <FontAwesome5 name="bolt" size={24} color="white" />
             </Pressable>
           </Link>
-        <View className="w-full max-w-sm">
           <Link href="/games/word_guesser" asChild>
             <Pressable className="bg-blue-500 rounded-lg shadow-md p-4 mb-6 flex-row items-center justify-between active:bg-blue-600">
               <View>
@@ -35,8 +34,16 @@ export default function BattleJeepney() {
               </View>
               <FontAwesome5 name="bolt" size={24} color="white" />
             </Pressable>
-          </Link>          
-        </View>
+          </Link>
+          <Link href="/games/cooking-lola" asChild>
+            <Pressable className="bg-orange-600 rounded-lg shadow-md p-4 mb-6 flex-row items-center justify-between active:bg-purple-600">
+              <View>
+                  <Text className="text-white font-bold text-xl">Cooking Lola</Text>
+                  <Text className="text-white text-sm">Prove you're a Lumpia Legend.</Text>
+              </View>
+              <FontAwesome5 name="brain" size={24} color="white" />
+            </Pressable>
+          </Link>
           {/* Link to a second game
           <Link href="/games/memory-game" asChild>
             <Pressable className="bg-purple-500 rounded-lg shadow-md p-4 mb-6 flex-row items-center justify-between active:bg-purple-600">

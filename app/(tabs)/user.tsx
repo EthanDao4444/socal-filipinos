@@ -3,7 +3,7 @@ import { supabase} from '@/utils/supabase';
 import { Modal, View, Text, TouchableOpacity, Animated, Dimensions, Image } from 'react-native'
 import type { Session } from '@supabase/supabase-js';
 import SignOutButton from '@/components/social-auth-buttons/sign-out-button';
-import { Button } from '@/components/Button';
+import { Button } from '@/components/default/Button';
 
 interface User {
   full_name: string;
