@@ -47,6 +47,16 @@ export default function BattleJeepney() {
           </Text>
         </Pressable>
       </Link>
+
+      <Link href="/games/cooking-lola" asChild>
+        <Pressable
+            className="bg-red-500 rounded-lg p-2 absolute"
+            style={{ top: 85, left: 15, width: 140 }}
+          >
+              <Text className="text-white text-center text-sm font-bold">Cooking Lola</Text>
+        </Pressable>
+      </Link>
+
     </View>
     </ImageBackground>
   );
