@@ -4,6 +4,7 @@ import { useAuthContext } from '@/hooks/use-auth-context'; // where you expose u
 import { useAdminActions } from '@/hooks/use-admin-actions';
 import EventForm from './EventForm';
 import BusinessForm from './BusinessForm';
+import RemoveEventModal from './RemoveEventModal';
 
 interface AdminModalProps {
   visible: boolean;
@@ -15,6 +16,7 @@ const AdminModal = ({ visible, onClose }: AdminModalProps) => {
   const { addEvent, removeEvent, addBusiness, removeBusiness } = useAdminActions();
   const [showEventForm, setShowEventForm] = useState(false);
   const [showBusinessForm, setShowBusinessForm] = useState(false);
+  const [showRemoveEventModal, setShowRemoveEventModal] = useState(false);
 
   if (!user || user.role !== 'admin') {
     return (
@@ -72,7 +74,7 @@ const AdminModal = ({ visible, onClose }: AdminModalProps) => {
 
           <Pressable
             className="bg-blue-100 rounded-md py-2 px-4 mb-2"
-            onPress={handleRemoveEvent}
+            onPress={() => setShowRemoveEventModal(true)}
           >
             <Text className="text-center text-blue-700 font-medium">Remove Event</Text>
           </Pressable>
@@ -100,6 +102,7 @@ const AdminModal = ({ visible, onClose }: AdminModalProps) => {
       {/* Sub-modals */}
       {showEventForm && <EventForm visible={showEventForm} onClose={() => setShowEventForm(false)} />}
       {showBusinessForm && <BusinessForm visible={showBusinessForm} onClose={() => setShowBusinessForm(false)} />}
+      {showRemoveEventModal && <RemoveEventModal visible={showRemoveEventModal} onClose={() => setRemoveEventModal(false)} />}
     </Modal>
   );
 };
