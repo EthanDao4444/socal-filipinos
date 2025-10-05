@@ -27,17 +27,18 @@ export default function BattleJeepney() {
             </Pressable>
           </Link>
           
-          {/* Link to a second game
-          <Link href="/games/memory-game" asChild>
-            <Pressable className="bg-purple-500 rounded-lg shadow-md p-4 mb-6 flex-row items-center justify-between active:bg-purple-600">
+          {/* Buko catcher */ }
+          <Link href="/games/buko-catcher" asChild>
+            <Pressable className="bg-green-600 rounded-lg shadow-md p-4 mb-6 flex-row items-center justify-between active:bg-purple-600">
               <View>
-                  <Text className="text-white font-bold text-xl">Memory Match</Text>
-                  <Text className="text-white text-sm">Find all the pairs.</Text>
+                  <Text className="text-white font-bold text-xl">Buko Catcher</Text>
+                  <Text className="text-white text-sm">Catch all of the coconuts!</Text>
               </View>
               <FontAwesome5 name="brain" size={24} color="white" />
             </Pressable>
           </Link>
 
+          {/* link to 3rd game}
           <Pressable className="bg-gray-400 rounded-lg p-4 flex-row items-center justify-between opacity-60">
             <View>
                   <Text className="text-white font-bold text-xl">Puzzle Mania</Text>
