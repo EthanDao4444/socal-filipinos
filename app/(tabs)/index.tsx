@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Modal, Image, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { supabase } from '@/utils/supabase';
 import "../../global.css";
+import { fetchEvents, saveEvent } from '@/lib/services/event.service';
+import { fetchBusinesses, saveBusiness } from '@/lib/services/business.service';
 
 interface Event {
   event_id: string;
@@ -32,27 +33,20 @@ export default function EventsAndBusinesses() {
   const [selectedItem, setSelectedItem] = useState<Event | Business | null>(null);
   const [search, setSearch] = useState('');
 
-  // 🔹 Fetch Events
-  const fetchEvents = async () => {
-    setLoading(true);
-    const { data, error } = await supabase.from('events').select('*').order('start_date', { ascending: true });
-    if (error) console.error('Error fetching events:', error.message);
-    else setEvents(data || []);
-    setLoading(false);
-  };
-
-  // 🔹 Fetch Businesses
-  const fetchBusinesses = async () => {
-    setLoading(true);
-    const { data, error } = await supabase.from('businesses').select('*').order('created_at', { ascending: false });
-    if (error) console.error('Error fetching businesses:', error.message);
-    else setBusinesses(data || []);
-    setLoading(false);
-  };
-
+  // Re-fetch events and businesses when active tab is switched (more caching?)
   useEffect(() => {
-    if (activeTab === 'events') fetchEvents();
-    else fetchBusinesses();
+    setLoading(true);
+    const fetch = async () => {
+      if (activeTab === 'events') {
+        const data = await fetchEvents();
+        setEvents(data);
+      } else {
+        const data = await fetchBusinesses();
+        setBusinesses(data);
+      }
+      setLoading(false);
+    };
+    fetch();
   }, [activeTab]);
 
   // 🔹 Filtered by search
@@ -67,31 +61,12 @@ export default function EventsAndBusinesses() {
   const handleSave = async () => {
     if (!selectedItem) return;
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      alert('Error: User not logged in.');
-      return;
-    }
-
     try {
       if (activeTab === 'events') {
-        const { error } = await supabase.from('users_events').insert([
-          { user_id: user.id, event_id: (selectedItem as Event).event_id },
-        ]);
-        if (error) throw error;
-        alert('Event saved!');
+        await saveEvent((selectedItem as any).event_id);
       } else {
-        const { error } = await supabase.from('users_businesses').insert([
-          { user_id: user.id, business_id: (selectedItem as Business).business_id },
-        ]);
-        if (error) throw error;
-        alert('Business saved!');
+        await saveBusiness((selectedItem as any).business_id);
       }
-
       setSelectedItem(null);
     } catch (err: any) {
       if (err.message.includes('duplicate key value')) {
@@ -102,7 +77,6 @@ export default function EventsAndBusinesses() {
     }
   };
 
-  console.log(events, businesses)
   return (
     <View className="flex-1 bg-white">
       {/* 🔹 Search bar */}
@@ -182,7 +156,6 @@ export default function EventsAndBusinesses() {
       )}
 
       {/* 🔹 Modal for details */}
-{/* 🔹 Modal for details */}
       <Modal visible={!!selectedItem} animationType="slide" transparent>
         <View className="flex-1 justify-center items-center bg-black/50">
           {selectedItem ? (
@@ -202,7 +175,7 @@ export default function EventsAndBusinesses() {
                 {activeTab === 'events' ? (
                   <>
                     <Text className="text-gray-600 mb-1">
-                      {selectedItem?.start_date
+                      {(selectedItem as any)?.start_date
                         ? `${new Date((selectedItem as any).start_date).toLocaleString()} - ${new Date(
                             (selectedItem as any).end_date
                           ).toLocaleString()}`
