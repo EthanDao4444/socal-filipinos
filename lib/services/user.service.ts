@@ -28,3 +28,20 @@ export async function fetchUserById(userId : string): Promise<UserRow | null> {
 export function fetchUserSettings() {
   
 }
+
+export async function deleteUserById(userId: string): Promise<void> {
+    const { error } = await supabase
+      .from('users')
+      .delete()
+      .eq('user_id', userId);
+  
+    if (error) throw error;
+  }
+
+  export async function fetchCurrentUserRow(): Promise<UserRow | null> {
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) throw sessionError;
+    const session = sessionData.session;
+    if (!session?.user?.id) return null;
+    return fetchUserById(session.user.id);
+  }
