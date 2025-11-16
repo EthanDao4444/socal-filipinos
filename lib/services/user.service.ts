@@ -1,11 +1,30 @@
-// Example code below:
+import { supabase } from '@/utils/supabase';
 
-export function fetchUserProfile() {
-  // Implementation for fetching user profile
+export type UserRow = {
+    user_id: string;
+    full_name: string;
+    avatar_url?: string | null;
+    role?: string | null;
+    created_at?: string | null;
+    email?: string | null;
+    user_location?: string | null;
+    location_address?: string | null;
+  };
+
+  
+export async function fetchUserById(userId : string): Promise<UserRow | null> {
+    const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+    if (error) throw error;
+    return data;
 }
+
+
 
 export function fetchUserSettings() {
-  // Implementation for fetching user settings
+  
 }
-
-// TODO: create user service functions
