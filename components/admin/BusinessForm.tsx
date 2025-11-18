@@ -110,7 +110,14 @@ export default function BusinessForm({ visible, onClose, existingBusiness }: Bus
       return;
     }
 
-    const point = toPostgresPoint(location.latitude, location.longitude);
+    let point: string;
+    try {
+      point = toPostgresPoint(location.latitude, location.longitude);
+    } catch (err: any) {
+      Alert.alert('Error', err?.message ?? 'Invalid coordinates');
+      return;
+    }
+
     const payload = {
       business_name,
       business_type,

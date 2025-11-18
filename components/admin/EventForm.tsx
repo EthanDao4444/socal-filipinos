@@ -107,7 +107,14 @@ export default function EventForm({ visible, onClose, existingEvent }: EventForm
       return;
     }
 
-    const point = toPostgresPoint(event_location.latitude, event_location.longitude);
+    let point: string;
+    try {
+      point = toPostgresPoint(event_location.latitude, event_location.longitude);
+    } catch (err: any) {
+      Alert.alert('Error', err?.message ?? 'Invalid coordinates');
+      return;
+    }
+
     const payload = {
       event_name,
       event_description,
