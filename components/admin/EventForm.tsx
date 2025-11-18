@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Modal,
   View,
@@ -8,9 +8,16 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import MapView, { Marker, MapPressEvent } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { supabase } from '@/utils/supabase';
+import {
+  rateLimitedFetchReverseGeocode,
+  parseNominatimAddress,
+  formatCityState,
+  validateCoordinates,
+  toPostgresPoint,
+} from '@/lib/services/openstreetmap.service';
 
 interface EventFormProps {
   visible: boolean;
@@ -37,36 +44,49 @@ export default function EventForm({ visible, onClose, existingEvent }: EventForm
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
   const mapRef = useRef<MapView | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
-  // --- Reverse Geocode using Nominatim (OpenStreetMap) ---
-  const fetchCityName = async (lat: number, lon: number) => {
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
-      );
-      const data = await response.json();
-      const city =
-        data.address?.city ||
-        data.address?.town ||
-        data.address?.village ||
-        data.address?.county ||
-        '';
-      const state = data.address.state;
-      return `${city}, ${state}`;
-    } catch (error) {
-      console.error('Error fetching city:', error);
-      return '';
-    }
-  };
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
 
-  const handleMapPress = async (e: MapPressEvent) => {
+  const handleMapPress = async (e: any) => {
     const { latitude, longitude } = e.nativeEvent.coordinate;
-    const city = await fetchCityName(latitude, longitude);
-    setForm((prev) => ({
-      ...prev,
-      event_location: { latitude, longitude },
-      location_address: city,
-    }));
+
+    // Abort any previous call
+    abortRef.current?.abort();
+
+    // Create a new AbortController for this request and store it so
+    // subsequent interactions can cancel it.
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
+
+    try {
+      // Validate coordinates
+      if (!validateCoordinates(latitude, longitude)) throw new Error('Invalid coordinates');
+      const raw = await rateLimitedFetchReverseGeocode(latitude, longitude, { signal: ctrl.signal });
+      const parsed = parseNominatimAddress(raw);
+      const cityState = formatCityState(parsed);
+
+      setForm((prev) => ({
+        ...prev,
+        event_location: { latitude, longitude },
+        location_address: cityState,
+      }));
+    } catch (err: any) {
+      if ((err as any).name === 'AbortError') {
+        return;
+      }
+      console.error('Error fetching city:', err);
+      setForm((prev) => ({
+        ...prev,
+        event_location: { latitude, longitude },
+      }));
+    } finally {
+      if (abortRef.current === ctrl) abortRef.current = null;
+    }
   };
 
   const handleSubmit = async () => {
@@ -87,7 +107,7 @@ export default function EventForm({ visible, onClose, existingEvent }: EventForm
       return;
     }
 
-    const point = `POINT(${event_location.longitude} ${event_location.latitude})`;
+    const point = toPostgresPoint(event_location.latitude, event_location.longitude);
     const payload = {
       event_name,
       event_description,

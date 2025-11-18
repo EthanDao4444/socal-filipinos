@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Modal,
   View,
@@ -8,8 +8,19 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import MapView, { Marker, MapPressEvent } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import { supabase } from '@/utils/supabase';
+
+// - rateLimitedFetchReverseGeocode function: makes geolocation call to Nominatim
+//    while enforcing a client-side rate limit and accepts an optional
+//    AbortSignal to cancel wait/fetch.
+import {
+  rateLimitedFetchReverseGeocode,
+  parseNominatimAddress,
+  formatCityState,
+  validateCoordinates,
+  toPostgresPoint,
+} from '@/lib/services/openstreetmap.service';
 
 interface BusinessFormProps {
   visible: boolean;
@@ -29,36 +40,60 @@ export default function BusinessForm({ visible, onClose, existingBusiness }: Bus
     },
   });
   const mapRef = useRef<MapView | null>(null);
+  // Holds the currently active reverse-geocode
+  // request. When a new map press occurs abort the previous request
+  const abortRef = useRef<AbortController | null>(null);
 
-  // --- Reverse Geocode using Nominatim (OpenStreetMap) ---
-  const fetchCityName = async (lat: number, lon: number) => {
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
-      );
-      const data = await response.json();
-      const city =
-        data.address?.city ||
-        data.address?.town ||
-        data.address?.village ||
-        data.address?.county ||
-        '';
-      const state = data.address.state;
-      return `${city}, ${state}`;
-    } catch (error) {
-      console.error('Error fetching city:', error);
-      return '';
-    }
-  };
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
 
-  const handleMapPress = async (e: MapPressEvent) => {
+  const handleMapPress = async (e: any) => {
     const { latitude, longitude } = e.nativeEvent.coordinate;
-    const city = await fetchCityName(latitude, longitude);
-    setForm((prev) => ({
-      ...prev,
-      location: { latitude, longitude },
-      location_address: city,
-    }));
+
+    // Abort any previous call — Ensures only one request at a time
+    abortRef.current?.abort();
+
+    // Create a new AbortController for the new request and store it so
+    // subsequent interactions can cancel it.
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
+
+    try {
+      // Validate coordinates 
+      if (!validateCoordinates(latitude, longitude)) throw new Error('Invalid coordinates');
+
+      // Request reverse-geocoding through 'openstreetmaps.service'. The service
+      // enforces a client-side rate limit 
+      const raw = await rateLimitedFetchReverseGeocode(latitude, longitude, { signal: ctrl.signal });
+
+      // Parse and format the response for display.
+      const parsed = parseNominatimAddress(raw);
+      const cityState = formatCityState(parsed);
+
+      // Update the form with both coordinates and the resolved city/state
+      setForm((prev) => ({
+        ...prev,
+        location: { latitude, longitude },
+        location_address: cityState,
+      }));
+    } catch (err: any) {
+      if ((err as any).name === 'AbortError') {
+        return;
+      }
+
+      // Log other errors and update the coordinates
+      console.error('Error fetching city:', err);
+      setForm((prev) => ({
+        ...prev,
+        location: { latitude, longitude },
+      }));
+    } finally {
+      // Clear the abortRef if it still points to this controller.
+      if (abortRef.current === ctrl) abortRef.current = null;
+    }
   };
 
   const handleSubmit = async () => {
@@ -75,7 +110,7 @@ export default function BusinessForm({ visible, onClose, existingBusiness }: Bus
       return;
     }
 
-    const point = `POINT(${location.longitude} ${location.latitude})`;
+    const point = toPostgresPoint(location.latitude, location.longitude);
     const payload = {
       business_name,
       business_type,
